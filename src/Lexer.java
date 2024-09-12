@@ -28,6 +28,34 @@ public class Lexer {
     public Lexer(String fileName) {
 
         getInput(fileName);
+        getNextToken();
+    }
+    public Token getNextToken() {
+        return getIdentifier();
+    }
+
+    private Token getIdentifier(String filename) {
+        StringBuilder sbToken = new StringBuilder();
+        boolean inIdentifier = false;
+        while (index < filename.length()) {
+            char c = filename.charAt(index);
+            if (c >= 'a' && c <= 'z') {
+                sbToken.append(c);
+                inIdentifier = true;
+                index++;
+            } else if(inIdentifier && Character.isDigit(c)) {
+                sbToken.append(c);
+                index++;
+            } else {
+                break;
+            }
+        }
+
+        if (!sbToken.isEmpty()) {
+            return new Token(IDTOKEN, sbToken.toString());
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -54,9 +82,11 @@ public class Lexer {
 
     public ArrayList<Token> getAllTokens(){
         //TODO: place your code here for lexing file
+
+
+
         return new ArrayList<Token>(); // don't forget to change the return statement
     }
-
 
 
 
