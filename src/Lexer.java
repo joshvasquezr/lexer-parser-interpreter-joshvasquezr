@@ -31,19 +31,19 @@ public class Lexer {
         getNextToken();
     }
     public Token getNextToken() {
-        return getIdentifier();
+        
     }
 
-    private Token getIdentifier(String filename) {
+    private Token getIdentifier(String buffer) {
         StringBuilder sbToken = new StringBuilder();
         boolean inIdentifier = false;
-        while (index < filename.length()) {
-            char c = filename.charAt(index);
+        while (index < buffer.length()) {
+            char c = buffer.charAt(index);
             if (c >= 'a' && c <= 'z') {
                 sbToken.append(c);
                 inIdentifier = true;
                 index++;
-            } else if(inIdentifier && Character.isDigit(c)) {
+            } else if (inIdentifier && Character.isDigit(c)) {
                 sbToken.append(c);
                 index++;
             } else {
@@ -58,6 +58,26 @@ public class Lexer {
         }
     }
 
+    private Token getInteger(String buffer) {
+        StringBuilder sbToken = new StringBuilder();
+        boolean iD = false;
+        while (index < buffer.length()){
+            char c = buffer.charAt(index);
+            if (Character.isDigit(c) && !iD) {
+                sbToken.append(c);
+            } else if (c >= 'a' && c <= 'z') {
+                iD = true;
+            } else {
+                iD = false;
+            }
+        }
+
+        if (!sbToken.isEmpty()) {
+            return new Token(INTTOKEN, sbToken.toString());
+        } else {
+            return null;
+        }
+    }
     /**
      * Reads given file into the data member buffer
      * @param fileName name of file to parse
