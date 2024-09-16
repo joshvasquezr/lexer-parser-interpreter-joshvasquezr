@@ -31,10 +31,20 @@ public class Lexer {
         getNextToken();
     }
     public Token getNextToken() {
-        
+        char currentChar = buffer.charAt(index);
+        Token temp = new Token();
+        if (currentChar >= 'a' && currentChar <= 'z'){
+            getIdentifier();
+        } else if (Character.isDigit(currentChar)) {
+            getInteger();
+        } else if (currentChar == '=') {
+            return new Token(ASSMTTOKEN, Character.toString(currentChar));
+        } else if (currentChar == '+') {
+            return new Token(PLUSTOKEN, Character.toString(currentChar));
+        }
     }
 
-    private Token getIdentifier(String buffer) {
+    private Token getIdentifier() {
         StringBuilder sbToken = new StringBuilder();
         boolean inIdentifier = false;
         while (index < buffer.length()) {
@@ -46,7 +56,10 @@ public class Lexer {
             } else if (inIdentifier && Character.isDigit(c)) {
                 sbToken.append(c);
                 index++;
-            } else {
+            } else if (c == ' '){
+                index++;
+                continue;
+            } else if (c == '=' || c == '+') {
                 break;
             }
         }
@@ -58,7 +71,7 @@ public class Lexer {
         }
     }
 
-    private Token getInteger(String buffer) {
+    private Token getInteger() {
         StringBuilder sbToken = new StringBuilder();
         boolean iD = false;
         while (index < buffer.length()){
