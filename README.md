@@ -79,10 +79,53 @@ or `getInteger()`. The nice part is that the logic for both methods only needed 
 would return. The difficulty was two-fold. I would either get the correct `EOFTOKEN` for the `testExpectingIdOrInt2.txt`
 and `testWhitespace.txt` or all the rest of the files except those previous two. If I was able to get an `EOFTOKEN` at
 the end of the rest of the files, I would have **two** `EOFTOKENS` at the end of `testWhitespace` and 
-`testExpectingIdOrInt2.txt`. I
-
-**Solution to `EOFTOKEN` problem:**
+`testExpectingIdOrInt2.txt`. 
+    * **Solution to `EOFTOKEN` problem:**
 I simply added an `if` statement within the `while` loop in `getAllTokens()`. This `if` statement checked to see if the 
 `ListArray<Tokens>` already had an `EOFTOKEN` in it. If it did, it would simply break the `while` loop and return the
 `ListArray<Tokens>`. However, if `EOFTOKEN` was not in the ListArray, then it would append a `new Token(EOFTOKEN, " -")`
 to the `ListArray<Tokens>`.
+
+### Test Plan
+
+To ensure the correctness of the Lexer, we designed a comprehensive set of unit tests that cover various scenarios. 
+Each test checks if the lexer correctly tokenizes the input and handles different combinations of identifiers, integers,
+assignment operators, and plus signs.
+
+1. **Basic Tokenization Test**:
+    - **Test file**: `test.txt`
+    - **Description**: Verifies that the lexer correctly identifies `ID`, `INT`, `ASSMT`, `PLUS`, and `EOF` tokens.
+    - **Expected result**: The lexer should return tokens for identifiers, integers, assignment operators, and plus 
+   signs as specified.
+
+2. **Assignment Operator Test**:
+    - **Test file**: `testExpectingAssignOp.txt`
+    - **Description**: Ensures that the lexer properly handles cases where assignment (`=`) occurs between identifiers 
+   and integers.
+    - **Expected result**: The lexer should return the correct token sequence with an assignment operator.
+
+3. **Identifier and Integer Test**:
+    - **Test file**: `testExpectingIdOrInt2.txt`
+    - **Description**: This test validates that the lexer can handle a mix of identifiers and integers, 
+   especially when two consecutive integers are encountered.
+    - **Expected result**: Identifiers and integers should be tokenized correctly.
+
+4. **Multiple Plus Test**:
+    - **Test file**: `testMultiplePlus.txt`
+    - **Description**: Verifies the lexer's behavior when multiple plus (`+`) operators appear.
+    - **Expected result**: The lexer should handle multiple plus operators in the correct sequence.
+
+5. **Whitespace Handling Test**:
+    - **Test file**: `testWhitespace.txt`
+    - **Description**: Tests how the lexer handles input with whitespace between tokens.
+    - **Expected result**: The lexer should correctly ignore whitespace and return valid tokens.
+
+6. **Expecting Identifier Test**:
+    - **Test file**: `testExpectingId2.txt`
+    - **Description**: Ensures that the lexer behaves correctly when it encounters a sequence of integers and expects 
+   an identifier.
+    - **Expected result**: The lexer should tokenize integers and assignment operators correctly, followed by `EOF`.
+
+Each test case compares the expected token output against the actual tokenized result and fails if there is a mismatch.
+
+
