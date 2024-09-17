@@ -88,7 +88,7 @@ to the `ListArray<Tokens>`.
 
 ### Test Plan
 
-To ensure the correctness of the Lexer, we designed a comprehensive set of unit tests that cover various scenarios. 
+To ensure the correctness of the Lexer, we used a comprehensive set of unit tests that cover various scenarios. 
 Each test checks if the lexer correctly tokenizes the input and handles different combinations of identifiers, integers,
 assignment operators, and plus signs.
 
