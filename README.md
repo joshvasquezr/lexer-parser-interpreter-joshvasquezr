@@ -88,7 +88,7 @@ to the `ListArray<Tokens>`.
 
 ### Test Plan
 
-To ensure the correctness of the Lexer, we used a comprehensive set of unit tests that cover various scenarios. 
+To ensure the correctness of the Lexer, I tested it using the comprehensive set of unit tests that was provided in `LexerTest.java`. 
 Each test checks if the lexer correctly tokenizes the input and handles different combinations of identifiers, integers,
 assignment operators, and plus signs.
 
@@ -128,4 +128,5 @@ assignment operators, and plus signs.
 
 Each test case compares the expected token output against the actual tokenized result and fails if there is a mismatch.
 
-
+## Test Video
+[![Project Demo!](https://img.youtube.com/vi/8HXgL726Oc0/hqdefault.jpg)(https://youtu.be/8HXgL726Oc0)

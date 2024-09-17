@@ -151,7 +151,7 @@ public class Lexer {
 
             fileName=args[0];
         }
-        Lexer lexer = new Lexer("testWhitespace.txt");
+        Lexer lexer = new Lexer(fileName);
         // just print out the text from the file
         System.out.println(lexer.getAllTokens());
         // here is where you'll call getAllToken
