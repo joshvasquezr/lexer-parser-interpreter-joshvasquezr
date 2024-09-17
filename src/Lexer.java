@@ -68,7 +68,7 @@ public class Lexer {
                 break;
             }
         }
-        if (!sbToken.isEmpty()) {
+        if (sbToken.length() > 0) {
             return new Token(IDTOKEN, sbToken.toString());
         }
         return null;
@@ -90,7 +90,7 @@ public class Lexer {
             }
         }
 
-        if (!sbToken.isEmpty()) {
+        if (sbToken.length() > 0) {
             return new Token(INTTOKEN, sbToken.toString());
         }
         return null;
@@ -141,16 +141,16 @@ public class Lexer {
      * @param args args[0]
      */
     public static void main(String[] args) {
-//        String fileName="";
-//        if (args.length==0) {
-//            System.out.println("You can test a different file by adding as an argument");
-//            System.out.println("See comment above main");
-//            System.out.println("For this run, test.txt used");
-//            fileName="test.txt";
-//        } else {
-//
-//            fileName=args[0];
-//        }
+        String fileName="";
+        if (args.length==0) {
+            System.out.println("You can test a different file by adding as an argument");
+            System.out.println("See comment above main");
+            System.out.println("For this run, test.txt used");
+            fileName="test.txt";
+        } else {
+
+            fileName=args[0];
+        }
         Lexer lexer = new Lexer("testWhitespace.txt");
         // just print out the text from the file
         System.out.println(lexer.getAllTokens());
