@@ -129,4 +129,4 @@ assignment operators, and plus signs.
 Each test case compares the expected token output against the actual tokenized result and fails if there is a mismatch.
 
 ## Test Video
-[![Project Demo!](https://img.youtube.com/vi/8HXgL726Oc0/hqdefault.jpg)(https://youtu.be/8HXgL726Oc0)
+[![Project Demo!](https://img.youtube.com/vi/8HXgL726Oc0/hqdefault.jpg)](https://youtu.be/8HXgL726Oc0)
