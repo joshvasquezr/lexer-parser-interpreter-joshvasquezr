@@ -20,14 +20,20 @@ public class Lexer {
     public static final String ASSMTTOKEN="ASSMT";
     public static final String PLUSTOKEN="PLUS";
     public static final String EOFTOKEN="EOF";
+    public static final String SUBTOKEN="SUB";
+    public static final String DIVTOKEN="DIV";
+    public static final String MULTTOKEN="MULT";
 
     /**
      * call getInput to get the file data into our buffer
      * @param fileName the file we open
      */
+
     public Lexer(String fileName) {
         getInput(fileName);
     }
+
+    // This method gets the next small piece (token) from the text.
     public Token getNextToken() {
         while (index < buffer.length() && Character.isWhitespace(buffer.charAt(index))) {
             index++;
@@ -47,12 +53,24 @@ public class Lexer {
         } else if (currentChar == '+') {
             index++;
             return new Token(PLUSTOKEN, Character.toString(currentChar));
+        } else if (currentChar == '/') {
+            index++;
+            return new Token(DIVTOKEN, Character.toString(currentChar));
+        } else if (currentChar == '*') {
+            index++;
+            return new Token(MULTTOKEN, Character.toString(currentChar));
+        } else if (currentChar == '-') {
+            index++;
+            return new Token(SUBTOKEN, Character.toString(currentChar));
         } else {
             return new Token(EOFTOKEN, "-");
         }
 
     }
 
+    // This method looks at the letters in the text.
+    // It grabs all the letters and numbers that form a word or name (identifier).
+    // Once it finds something else, it stops and gives back the word as a token.
     private Token getIdentifier() {
         if (buffer == null || buffer.isEmpty()) {
             return null;
@@ -74,6 +92,9 @@ public class Lexer {
         return null;
     }
 
+    // This method looks for numbers in the text.
+    // It grabs all the digits that form a number.
+    // Once it finds something else, it stops and gives back the number as a token.
     private Token getInteger() {
         if (buffer == null || buffer.isEmpty()) {
             return null;
@@ -112,11 +133,8 @@ public class Lexer {
         }
     }
 
-    /**
-     * Return all the token in the file
-     * @return ArrayList of Token
-     */
-
+    // This method keeps getting tokens until it finds the EOF (End of File) token.
+    // It puts all the tokens in a list and returns the list.
     public ArrayList<Token> getAllTokens(){
         //TODO: place your code here for lexing file
         ArrayList<Token> tokenList = new ArrayList<>();
@@ -151,7 +169,7 @@ public class Lexer {
 
             fileName=args[0];
         }
-        Lexer lexer = new Lexer(fileName);
+        Lexer lexer = new Lexer("test.txt");
         // just print out the text from the file
         System.out.println(lexer.getAllTokens());
         // here is where you'll call getAllToken
