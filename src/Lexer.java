@@ -26,70 +26,74 @@ public class Lexer {
      * @param fileName the file we open
      */
     public Lexer(String fileName) {
-
         getInput(fileName);
-        getNextToken();
     }
     public Token getNextToken() {
+        while (index < buffer.length() && Character.isWhitespace(buffer.charAt(index))) {
+            index++;
+        }
+        if (index >= buffer.length()) {
+            return new Token(EOFTOKEN, "-");
+        }
+
         char currentChar = buffer.charAt(index);
-        Token temp = new Token();
-        if (currentChar >= 'a' && currentChar <= 'z'){
-            getIdentifier();
+        if (Character.isLetter(currentChar)){
+            return getIdentifier();
         } else if (Character.isDigit(currentChar)) {
-            getInteger();
+            return getInteger();
         } else if (currentChar == '=') {
+            index++;
             return new Token(ASSMTTOKEN, Character.toString(currentChar));
         } else if (currentChar == '+') {
+            index++;
             return new Token(PLUSTOKEN, Character.toString(currentChar));
+        } else {
+            return new Token(EOFTOKEN, "-");
         }
+
     }
 
-    private Token getIdentifier() {
+    public Token getIdentifier() {
+        if (buffer == null || buffer.isEmpty()) {
+            return null;
+        }
+
         StringBuilder sbToken = new StringBuilder();
-        boolean inIdentifier = false;
         while (index < buffer.length()) {
             char c = buffer.charAt(index);
-            if (c >= 'a' && c <= 'z') {
-                sbToken.append(c);
-                inIdentifier = true;
-                index++;
-            } else if (inIdentifier && Character.isDigit(c)) {
+            if (Character.isLetter(c) || Character.isDigit(c)) {
                 sbToken.append(c);
                 index++;
-            } else if (c == ' '){
+            } else {
+                break;
+            }
+        }
+        if (!sbToken.isEmpty()) {
+            return new Token(IDTOKEN, sbToken.toString());
+        }
+        return null;
+    }
+
+    public Token getInteger() {
+        if (buffer == null || buffer.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder sbToken = new StringBuilder();
+        while (index < buffer.length()) {
+            char c = buffer.charAt(index);
+            if (Character.isDigit(c)) {
+                sbToken.append(c);
                 index++;
-                continue;
-            } else if (c == '=' || c == '+') {
+            } else {
                 break;
             }
         }
 
         if (!sbToken.isEmpty()) {
-            return new Token(IDTOKEN, sbToken.toString());
-        } else {
-            return null;
-        }
-    }
-
-    private Token getInteger() {
-        StringBuilder sbToken = new StringBuilder();
-        boolean iD = false;
-        while (index < buffer.length()){
-            char c = buffer.charAt(index);
-            if (Character.isDigit(c) && !iD) {
-                sbToken.append(c);
-            } else if (c >= 'a' && c <= 'z') {
-                iD = true;
-            } else {
-                iD = false;
-            }
-        }
-
-        if (!sbToken.isEmpty()) {
             return new Token(INTTOKEN, sbToken.toString());
-        } else {
-            return null;
         }
+        return null;
     }
     /**
      * Reads given file into the data member buffer
@@ -115,10 +119,17 @@ public class Lexer {
 
     public ArrayList<Token> getAllTokens(){
         //TODO: place your code here for lexing file
+        ArrayList<Token> tokenList = new ArrayList<>();
+        boolean done = false;
+        while (!done) {
+            Token nextToken = getNextToken();
+            tokenList.add(nextToken);
+            if (nextToken.toString().equals(EOFTOKEN + " -")) {
+                done = true;
+            }
+        }
 
-
-
-        return new ArrayList<Token>(); // don't forget to change the return statement
+        return tokenList; // don't forget to change the return statement
     }
 
 
@@ -130,21 +141,20 @@ public class Lexer {
      * @param args args[0]
      */
     public static void main(String[] args) {
-        String fileName="";
-        if (args.length==0) {
-            System.out.println("You can test a different file by adding as an argument");
-            System.out.println("See comment above main");
-            System.out.println("For this run, test.txt used");
-            fileName="test.txt";
-        } else {
-
-            fileName=args[0];
-        }
-        Lexer lexer = new Lexer(fileName);
+//        String fileName="";
+//        if (args.length==0) {
+//            System.out.println("You can test a different file by adding as an argument");
+//            System.out.println("See comment above main");
+//            System.out.println("For this run, test.txt used");
+//            fileName="test.txt";
+//        } else {
+//
+//            fileName=args[0];
+//        }
+        Lexer lexer = new Lexer("testWhitespace.txt");
         // just print out the text from the file
-        System.out.println(lexer.buffer);
-        // here is where you'll call getAllTokens
-
+        System.out.println(lexer.getAllTokens());
+        // here is where you'll call getAllToken
     }
 }
 	
