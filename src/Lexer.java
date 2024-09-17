@@ -53,7 +53,7 @@ public class Lexer {
 
     }
 
-    public Token getIdentifier() {
+    private Token getIdentifier() {
         if (buffer == null || buffer.isEmpty()) {
             return null;
         }
@@ -74,7 +74,7 @@ public class Lexer {
         return null;
     }
 
-    public Token getInteger() {
+    private Token getInteger() {
         if (buffer == null || buffer.isEmpty()) {
             return null;
         }
