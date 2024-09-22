@@ -3,46 +3,87 @@ import java.util.ArrayList;
 
 public class Parser {
     //TODO implement Parser class here
-    public ArrayList<Token> tokenList;
-//    public ArrayList<Token> idTable;
+    private ArrayList<Token> tokenList;
+    private int index = 0;
+    private Token currentToken;
+    private String type;
+    private String value;
 
     // Constructor initializes Parser() data members
-    public Parser(ArrayList<Token> idTable) {
-        Lexer lexer = new Lexer("parseTest.txt");
+    public Parser(String fileName) {
+        Lexer lexer = new Lexer(fileName);
         this.tokenList = lexer.getAllTokens();
-//        this.idTable = idTable;
+        if (!tokenList.isEmpty()) {
+            currentToken = tokenList.get(index);
+            type = currentToken.getType();
+            value = currentToken.getValue();
+        } else {
+            currentToken = null;
+        }
     }
 
     public void parseProgram() {
         // drives the process and parse an entire program
         // should call parseAssignment() within a loop
+        while (index < tokenList.size()-1) {
+            parseAssignment();
+        }
     }
 
     public void parseAssignment() {
         // parse a single assignment statement
         // calls parseId(), parseAssignmentOp(), and parseExpression()
+
+        if (type.equals("ID")) {
+            parseId();
+            nextToken();
+            if (type.equals("ASSMT")) {
+                parseAssignmentOp();
+                nextToken();
+                while(!type.equals("EOF")) {
+                    parseExpression();
+                    nextToken();
+                }
+            }
+        }
     }
 
     public void parseId() {
         // parses a single identifier
+        System.out.println("I'm in parseId(): " + currentToken);
     }
 
     public void parseAssignmentOp() {
         // parses a single assignment operator
+        System.out.println("I'm in parseAssignmentOp(): " + currentToken);
     }
 
     public void parseExpression() {
         // parses an expression, i.e. the right hand side of the assignment
         // can include an unlimited number of "+" signs, e.g., "Y+3+4+..."
+        System.out.println("I'm in parseExpression(): " + currentToken);
+        if (type.equals("ID")) {
+            
+        }
     }
 
-    public void nextToken() {
+    public Token nextToken() {
         // gets the next token in the list and increments the index
+        index++;
+        currentToken = tokenList.get(index);
+        value = currentToken.getValue();
+        type = currentToken.getType();
+        return currentToken;
     }
 
     public String toString() {
         //print out the token list and id table
-        return "";
+        return "toString() :)";
+    }
+
+    public static void main(String[] args) {
+        Parser test = new Parser("parseTest.txt");
+        test.parseProgram();
     }
 }
 
