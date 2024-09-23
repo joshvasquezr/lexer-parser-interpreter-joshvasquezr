@@ -9,6 +9,9 @@ public class Parser {
     private String type;
     private String value;
     private idTable symbolTable;
+    private boolean ERROR;
+    private boolean goTo;
+    private String currentID;
 
     // Constructor initializes Parser() data members
     public Parser(String fileName) {
@@ -19,6 +22,11 @@ public class Parser {
             type = currentToken.getType();
             value = currentToken.getValue();
             symbolTable = new idTable();
+            goTo = false;
+            ERROR = false;
+            if (currentToken.type.equals("ID")) {
+                currentID = currentToken.value;
+            }
         } else {
             currentToken = null;
         }
@@ -27,8 +35,12 @@ public class Parser {
     public void parseProgram() {
         // drives the process and parse an entire program
         // should call parseAssignment() within a loop
-        while (index < tokenList.size()-1) {
+        while (index < tokenList.size()-1 && !ERROR) {
+            goTo = false;
             parseAssignment();
+        }
+        if (ERROR) {
+            System.out.println("Invalid Program");
         }
     }
 
@@ -44,14 +56,25 @@ public class Parser {
                 nextToken();
                 while(!type.equals("EOF")) {
                     parseExpression();
+                    if (goTo) {
+                        return;
+                    }
                     nextToken();
                 }
+            } else {
+                System.out.println("Expecting assignment operator");
+                ERROR = true;
+                return;
             }
         } else {
-            System.out.println("Expected an ID on line");
+            System.out.println("Expected identifier");
+            ERROR = true;
             return;
         }
-        System.out.println("Valid Program");
+
+        if (!ERROR) {
+            System.out.println("Valid Program");
+        }
     }
 
     public void parseId() {
@@ -59,19 +82,42 @@ public class Parser {
         if (symbolTable.getAddress(currentToken.getValue()) == -1) {
             symbolTable.add(currentToken.getValue());
         }
+        currentID = currentToken.value;
     }
 
     public void parseAssignmentOp() {
         // parses a single assignment operator
-        System.out.println("I'm in parseAssignmentOp(): " + currentToken);
+        Token nextToken = tokenList.get(index+1);
+        if (!(nextToken.type.equals("INT") || nextToken.type.equals("ID"))) {
+            System.out.println("Expecting identifier or integer");
+            ERROR = true;
+        }
     }
 
     public void parseExpression() {
         // parses an expression, i.e. the right hand side of the assignment
         // can include an unlimited number of "+" signs, e.g., "Y+3+4+..."
-        System.out.println("I'm in parseExpression(): " + currentToken);
         if (type.equals("ID")) {
-
+            if (symbolTable.getAddress(value) == -1) {
+                Token nextToken = tokenList.get(index+1);
+                if (nextToken.type.equals("ASSMT")) {
+                    goTo = true;
+                } else {
+                    System.out.println("Identifier not defined");
+                    ERROR = true;
+                }
+            } else {
+                if (currentToken.value.equals(currentID)){
+                    System.out.println("Nonsensical Recursive Statement");
+                    ERROR = true;
+                }
+            }
+        } else if (type.equals("INT")) {
+            Token nextToken = tokenList.get(index+1);
+            if (nextToken.type.equals("INT")) {
+                System.out.println("Expecting identifier or add operator");
+                ERROR = true;
+            }
         }
     }
 
@@ -90,21 +136,7 @@ public class Parser {
     }
 
     public static void main(String[] args) {
-        Parser test = new Parser("test.txt");
+        Parser test = new Parser("parseTest.txt");
         test.parseProgram();
     }
 }
-
-/*PSEUDO-CODE TIME
-* Call a Lexer with a specific file
-* access the contents of the ArrayList<Tokens?
-* Parse through the ListArray
-* Check the contents of each element
-* Then, check the contents of the element that was right before it
-*
-* Valid SIMPLE Statement
-* ID = INT / knownID
-*
-* Make program recognize the START to a new SIMPLE statement / expression
-* You Know a new expression STARTS when you have an unidentified IDTOKEN followed by an ASSMNT
-*/
