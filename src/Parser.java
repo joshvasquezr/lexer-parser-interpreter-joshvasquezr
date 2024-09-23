@@ -45,7 +45,11 @@ public class Parser {
                     nextToken();
                 }
             }
+        } else {
+            System.out.println("Expected an ID on line");
+            return;
         }
+        System.out.println("Valid Program");
     }
 
     public void parseId() {
@@ -63,7 +67,7 @@ public class Parser {
         // can include an unlimited number of "+" signs, e.g., "Y+3+4+..."
         System.out.println("I'm in parseExpression(): " + currentToken);
         if (type.equals("ID")) {
-            
+
         }
     }
 
@@ -82,7 +86,7 @@ public class Parser {
     }
 
     public static void main(String[] args) {
-        Parser test = new Parser("parseTest.txt");
+        Parser test = new Parser("test.txt");
         test.parseProgram();
     }
 }
