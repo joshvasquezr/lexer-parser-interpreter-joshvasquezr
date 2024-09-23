@@ -8,6 +8,7 @@ public class Parser {
     private Token currentToken;
     private String type;
     private String value;
+    private idTable symbolTable;
 
     // Constructor initializes Parser() data members
     public Parser(String fileName) {
@@ -17,6 +18,7 @@ public class Parser {
             currentToken = tokenList.get(index);
             type = currentToken.getType();
             value = currentToken.getValue();
+            symbolTable = new idTable();
         } else {
             currentToken = null;
         }
@@ -54,7 +56,9 @@ public class Parser {
 
     public void parseId() {
         // parses a single identifier
-        System.out.println("I'm in parseId(): " + currentToken);
+        if (symbolTable.getAddress(currentToken.getValue()) == -1) {
+            symbolTable.add(currentToken.getValue());
+        }
     }
 
     public void parseAssignmentOp() {

@@ -16,16 +16,21 @@ public class idTable {
     }
 
     public int getAddress(String str) {
-        System.out.println(this.table.get(str));
-        return this.table.get(str);
+        if (this.table.containsKey(str)) {
+            return this.table.get(str);
+        } else {
+            return -1;
+        }
     }
 
-    public static void main(String[] args) {
-        idTable test = new idTable();
-        test.add("abc");
-        test.add("cab");
-        test.add("bca");
-        System.out.println(test.table);
-        test.getAddress("cab");
-    }
+//    public static void main(String[] args) {
+//        idTable test = new idTable();
+//        test.add("abc");
+//        test.add("cab");
+//        test.add("bca");
+//        System.out.println(test.table);
+//        if (test.table.containsKey("abc")) {
+//            System.out.println("HERE!");
+//        }
+//    }
 }
