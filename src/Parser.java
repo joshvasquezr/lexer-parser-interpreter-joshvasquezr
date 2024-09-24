@@ -8,6 +8,7 @@ public class Parser {
     private Token currentToken;
     private String type;
     private String value;
+    private int line;
     private idTable symbolTable;
     private boolean ERROR;
     private boolean goTo;
@@ -21,6 +22,7 @@ public class Parser {
             currentToken = tokenList.get(index);
             type = currentToken.getType();
             value = currentToken.getValue();
+            line = currentToken.getLine();
             symbolTable = new idTable();
             goTo = false;
             ERROR = false;
@@ -64,12 +66,12 @@ public class Parser {
                     nextToken();
                 }
             } else {
-                System.out.println("Expecting assignment operator");
+                System.out.println("Expecting assignment operator, line " + line);
                 ERROR = true;
                 return ERROR;
             }
         } else {
-            System.out.println("Expected identifier");
+            System.out.println("Expected identifier, line " + line);
             ERROR = true;
             return ERROR;
         }
@@ -82,18 +84,21 @@ public class Parser {
             symbolTable.add(currentToken.getValue());
         }
         currentID = currentToken.value;
+        return ERROR;
     }
 
-    public void parseAssignmentOp() {
+    public boolean parseAssignmentOp() {
         // parses a single assignment operator
         Token nextToken = tokenList.get(index+1);
         if (!(nextToken.type.equals(Lexer.INTTOKEN) || nextToken.type.equals(Lexer.IDTOKEN))) {
-            System.out.println("Expecting identifier or integer");
+            System.out.println("Expecting identifier or integer, on line " + line);
             ERROR = true;
+            return ERROR;
         }
+        return ERROR;
     }
 
-    public void parseExpression() {
+    public boolean parseExpression() {
         // parses an expression, i.e. the right hand side of the assignment
         // can include an unlimited number of "+" signs, e.g., "Y+3+4+..."
         if (type.equals(Lexer.IDTOKEN)) {
@@ -102,22 +107,26 @@ public class Parser {
                 if (nextToken.type.equals(Lexer.ASSMTTOKEN)) {
                     goTo = true;
                 } else {
-                    System.out.println("Identifier '" + value + "' not defined");
+                    System.out.println("Identifier '" + value + "' not defined, line " + line);
                     ERROR = true;
+                    return ERROR;
                 }
             } else {
                 if (currentToken.value.equals(currentID)){
-                    System.out.println("Nonsensical Recursive Statement");
+                    System.out.println("Nonsensical Recursive Statement, line " + line);
                     ERROR = true;
+                    return ERROR;
                 }
             }
         } else if (type.equals("INT")) {
             Token nextToken = tokenList.get(index+1);
             if (nextToken.type.equals("INT")) {
-                System.out.println("Expecting identifier or add operator");
+                System.out.println("Expecting identifier or add operator, line " + line);
                 ERROR = true;
+                return ERROR;
             }
         }
+        return ERROR;
     }
 
     public Token nextToken() {
@@ -135,7 +144,9 @@ public class Parser {
     }
 
     public static void main(String[] args) {
-        Parser test = new Parser("parseTest.txt");
+        String fileName = "";
+        fileName = args[0];
+        Parser test = new Parser(fileName);
         test.parseProgram();
     }
 }

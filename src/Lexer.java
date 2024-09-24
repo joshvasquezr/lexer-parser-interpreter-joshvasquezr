@@ -14,7 +14,8 @@ import java.util.Scanner;
 public class Lexer {
 
     String buffer;
-    int index = 0;
+    private int index = 0;
+    private int line = 1;
     public static final String INTTOKEN="INT";
     public static final String IDTOKEN="ID";
     public static final String ASSMTTOKEN="ASSMT";
@@ -36,10 +37,13 @@ public class Lexer {
     // This method gets the next small piece (token) from the text.
     public Token getNextToken() {
         while (index < buffer.length() && Character.isWhitespace(buffer.charAt(index))) {
+            if (buffer.charAt(index) == '\n') {
+                line++;
+            }
             index++;
         }
         if (index >= buffer.length()) {
-            return new Token(EOFTOKEN, "-");
+            return new Token(EOFTOKEN, "-", line);
         }
 
         char currentChar = buffer.charAt(index);
@@ -49,21 +53,21 @@ public class Lexer {
             return getInteger();
         } else if (currentChar == '=') {
             index++;
-            return new Token(ASSMTTOKEN, Character.toString(currentChar));
+            return new Token(ASSMTTOKEN, Character.toString(currentChar),line);
         } else if (currentChar == '+') {
             index++;
-            return new Token(PLUSTOKEN, Character.toString(currentChar));
+            return new Token(PLUSTOKEN, Character.toString(currentChar),line);
         } else if (currentChar == '/') {
             index++;
-            return new Token(DIVTOKEN, Character.toString(currentChar));
+            return new Token(DIVTOKEN, Character.toString(currentChar),line);
         } else if (currentChar == '*') {
             index++;
-            return new Token(MULTTOKEN, Character.toString(currentChar));
+            return new Token(MULTTOKEN, Character.toString(currentChar),line);
         } else if (currentChar == '-') {
             index++;
-            return new Token(SUBTOKEN, Character.toString(currentChar));
+            return new Token(SUBTOKEN, Character.toString(currentChar),line);
         } else {
-            return new Token(EOFTOKEN, "-");
+            return new Token(EOFTOKEN, "-",line);
         }
 
     }
@@ -87,7 +91,7 @@ public class Lexer {
             }
         }
         if (sbToken.length() > 0) {
-            return new Token(IDTOKEN, sbToken.toString());
+            return new Token(IDTOKEN, sbToken.toString(), line);
         }
         return null;
     }
@@ -112,7 +116,7 @@ public class Lexer {
         }
 
         if (sbToken.length() > 0) {
-            return new Token(INTTOKEN, sbToken.toString());
+            return new Token(INTTOKEN, sbToken.toString(),line);
         }
         return null;
     }
@@ -142,7 +146,7 @@ public class Lexer {
         while (!done) {
             Token nextToken = getNextToken();
             tokenList.add(nextToken);
-            if (nextToken.toString().equals(EOFTOKEN + " -")) {
+            if (nextToken.toString().equals(EOFTOKEN + " - " +line)) {
                 done = true;
             }
         }
@@ -169,7 +173,7 @@ public class Lexer {
 
             fileName=args[0];
         }
-        Lexer lexer = new Lexer("test.txt");
+        Lexer lexer = new Lexer(fileName);
         // just print out the text from the file
         System.out.println(lexer.getAllTokens());
         // here is where you'll call getAllToken

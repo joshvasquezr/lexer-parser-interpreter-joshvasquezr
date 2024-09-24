@@ -1,9 +1,9 @@
 public class Token {
     public String type;
     public String value;
-    public String line;
+    public int line;
 
-    public Token(String type, String value) {
+    public Token(String type, String value, int line) {
         this.type=type;
         this.value=value;
         this.line = line;
@@ -17,9 +17,13 @@ public class Token {
         return this.value;
     }
 
+    public int getLine() {
+        return this.line;
+    }
+
     public String toString(){
 
-        return type+" "+value;
+        return type+" "+value+" "+line;
     }
 
 }
