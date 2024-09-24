@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class Parser {
     //TODO implement Parser class here
-    private ArrayList<Token> tokenList;
+    private final ArrayList<Token> tokenList;
     private int index = 0;
     private Token currentToken;
     private String type;
@@ -24,7 +24,7 @@ public class Parser {
             symbolTable = new idTable();
             goTo = false;
             ERROR = false;
-            if (currentToken.type.equals("ID")) {
+            if (currentToken.type.equals(Lexer.IDTOKEN)) {
                 currentID = currentToken.value;
             }
         } else {
@@ -41,43 +41,42 @@ public class Parser {
         }
         if (ERROR) {
             System.out.println("Invalid Program");
+        } else {
+            System.out.println("Valid Program");
         }
     }
 
-    public void parseAssignment() {
+    public boolean parseAssignment() {
         // parse a single assignment statement
         // calls parseId(), parseAssignmentOp(), and parseExpression()
 
-        if (type.equals("ID")) {
+        if (type.equals(Lexer.IDTOKEN)) {
             parseId();
             nextToken();
-            if (type.equals("ASSMT")) {
+            if (type.equals(Lexer.ASSMTTOKEN)) {
                 parseAssignmentOp();
                 nextToken();
-                while(!type.equals("EOF")) {
+                while(!type.equals(Lexer.EOFTOKEN)) {
                     parseExpression();
                     if (goTo) {
-                        return;
+                        return ERROR;
                     }
                     nextToken();
                 }
             } else {
                 System.out.println("Expecting assignment operator");
                 ERROR = true;
-                return;
+                return ERROR;
             }
         } else {
             System.out.println("Expected identifier");
             ERROR = true;
-            return;
+            return ERROR;
         }
-
-        if (!ERROR) {
-            System.out.println("Valid Program");
-        }
+        return ERROR;
     }
 
-    public void parseId() {
+    public boolean parseId() {
         // parses a single identifier
         if (symbolTable.getAddress(currentToken.getValue()) == -1) {
             symbolTable.add(currentToken.getValue());
@@ -88,7 +87,7 @@ public class Parser {
     public void parseAssignmentOp() {
         // parses a single assignment operator
         Token nextToken = tokenList.get(index+1);
-        if (!(nextToken.type.equals("INT") || nextToken.type.equals("ID"))) {
+        if (!(nextToken.type.equals(Lexer.INTTOKEN) || nextToken.type.equals(Lexer.IDTOKEN))) {
             System.out.println("Expecting identifier or integer");
             ERROR = true;
         }
@@ -97,13 +96,13 @@ public class Parser {
     public void parseExpression() {
         // parses an expression, i.e. the right hand side of the assignment
         // can include an unlimited number of "+" signs, e.g., "Y+3+4+..."
-        if (type.equals("ID")) {
+        if (type.equals(Lexer.IDTOKEN)) {
             if (symbolTable.getAddress(value) == -1) {
                 Token nextToken = tokenList.get(index+1);
-                if (nextToken.type.equals("ASSMT")) {
+                if (nextToken.type.equals(Lexer.ASSMTTOKEN)) {
                     goTo = true;
                 } else {
-                    System.out.println("Identifier not defined");
+                    System.out.println("Identifier '" + value + "' not defined");
                     ERROR = true;
                 }
             } else {

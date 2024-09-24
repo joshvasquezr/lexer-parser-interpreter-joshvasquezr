@@ -1,10 +1,12 @@
 public class Token {
     public String type;
     public String value;
+    public String line;
 
     public Token(String type, String value) {
         this.type=type;
         this.value=value;
+        this.line = line;
     }
 
     public String getType() {
@@ -19,6 +21,5 @@ public class Token {
 
         return type+" "+value;
     }
-
 
 }
