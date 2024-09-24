@@ -1,4 +1,4 @@
-# Lexer Project (2a)
+# Lexer-Parser Project (2a / 2b)
 ## Project Overview
 The Lexer-Parser Project (2b) aims to tokenize the different parts of SIMPLE code in a  `.txt` file and the parse the 
 tokens to ensure the SIMPLE code input is a 'Valid Program' or 'Invalid Program'.
