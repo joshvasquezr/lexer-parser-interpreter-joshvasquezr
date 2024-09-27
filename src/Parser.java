@@ -12,6 +12,8 @@ public class Parser {
     private boolean ERROR;
     private boolean goTo;
     private String currentID;
+    private ArrayList<Integer> byteCode = new ArrayList<Integer>();
+    private int currentIdAddress = 0;
 
     // Constructor: This is where we set things up to start reading the program
     public Parser(String fileName) {
@@ -38,6 +40,9 @@ public class Parser {
         while (index < tokenList.size()-1 && !ERROR) {
             goTo = false;
             parseAssignment();  // Keeps reading assignments until the end
+            byteCode.add(2);
+            byteCode.add(currentIdAddress);
+            currentIdAddress++;
         }
         if (ERROR) {
             System.out.println("Invalid Program");  // If something's wrong, say it's a bad program
@@ -112,6 +117,10 @@ public class Parser {
                     ERROR = true;
                     return ERROR;
                 }
+
+                // Generate ByteCode
+                byteCode.add(0);
+                byteCode.add(symbolTable.getAddress(value));
             }
         } else if (type.equals(Lexer.INTTOKEN)) {
             Token nextToken = tokenList.get(index + 1);
@@ -120,6 +129,8 @@ public class Parser {
                 ERROR = true;
                 return ERROR;
             }
+            byteCode.add(1);
+            byteCode.add(Integer.parseInt(value));
         } else if (type.equals(Lexer.PLUSTOKEN) || type.equals(Lexer.SUBTOKEN) || type.equals(Lexer.DIVTOKEN) || type.equals(Lexer.MULTTOKEN)) {
             Token nextToken = tokenList.get(index + 1);
             if (!(nextToken.type.equals(Lexer.INTTOKEN) || nextToken.type.equals(Lexer.IDTOKEN))) {
@@ -144,7 +155,12 @@ public class Parser {
     // This is the main function that starts the program
     public static void main(String[] args) {
         String fileName = "";  // Get the file name with the program code
-        fileName = args[0];  // Take the first argument as the file name
+        if (args.length == 0) {
+            System.out.println("For this run, test.txt is used");
+            fileName = "test.txt";
+        } else {
+            fileName = args[0];  // Take the first argument as the file name
+        }
         Parser test = new Parser(fileName);  // Make a new parser to read the file
         test.parseProgram();  // Start reading and checking the whole program
     }
