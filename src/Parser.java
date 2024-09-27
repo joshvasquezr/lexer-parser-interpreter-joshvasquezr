@@ -13,7 +13,7 @@ public class Parser {
     private boolean goTo;
     private String currentID;
     private ArrayList<Integer> byteCode = new ArrayList<Integer>();
-    private int currentIdAddress = 0;
+//    private int currentIdAddress;
 
     // Constructor: This is where we set things up to start reading the program
     public Parser(String fileName) {
@@ -25,6 +25,7 @@ public class Parser {
             value = currentToken.getValue();
             line = currentToken.getLine();
             symbolTable = new idTable();
+//            this.currentIdAddress = symbolTable.getAddress(value);
             goTo = false;
             ERROR = false;
             if (currentToken.type.equals(Lexer.IDTOKEN)) {
@@ -40,9 +41,6 @@ public class Parser {
         while (index < tokenList.size()-1 && !ERROR) {
             goTo = false;
             parseAssignment();  // Keeps reading assignments until the end
-            byteCode.add(2);
-            byteCode.add(currentIdAddress);
-            currentIdAddress++;
         }
         if (ERROR) {
             System.out.println("Invalid Program");  // If something's wrong, say it's a bad program
@@ -76,6 +74,10 @@ public class Parser {
             ERROR = true;
             return ERROR;
         }
+        if (type.equals(Lexer.EOFTOKEN)) {
+            byteCode.add(2);
+            byteCode.add(symbolTable.getAddress(currentID));
+        }
         return ERROR;
     }
 
@@ -106,21 +108,30 @@ public class Parser {
                 Token nextToken = tokenList.get(index + 1);
                 if (nextToken.type.equals(Lexer.ASSMTTOKEN)) {
                     goTo = true;
+                    byteCode.add(2);
+                    byteCode.add(symbolTable.getAddress(currentID));
                 } else {
                     System.out.println("Identifier '" + value + "' not defined, line " + line);
                     ERROR = true;
                     return ERROR;
                 }
             } else {
+                Token nextToken = tokenList.get(index + 1);
                 if (currentToken.value.equals(currentID)) {
                     System.out.println("Nonsensical Recursive Statement, line " + line);
                     ERROR = true;
                     return ERROR;
+                } else if (nextToken.type.equals(Lexer.ASSMTTOKEN)) {
+                    goTo = true;
+                    byteCode.add(2);
+                    byteCode.add(symbolTable.getAddress(currentID));
+                } else {
+                    byteCode.add(0);
+                    byteCode.add(symbolTable.getAddress(value));
                 }
 
                 // Generate ByteCode
-                byteCode.add(0);
-                byteCode.add(symbolTable.getAddress(value));
+
             }
         } else if (type.equals(Lexer.INTTOKEN)) {
             Token nextToken = tokenList.get(index + 1);
@@ -163,5 +174,6 @@ public class Parser {
         }
         Parser test = new Parser(fileName);  // Make a new parser to read the file
         test.parseProgram();  // Start reading and checking the whole program
+        System.out.println(test.byteCode);
     }
 }
