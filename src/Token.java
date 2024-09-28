@@ -23,9 +23,8 @@ public class Token {
         return this.line;
     }
 
-    // prints token 
+    // prints token
     public String toString(){
         return type+" "+value+" "+line;
     }
-
 }

@@ -29,6 +29,6 @@ public class idTable {
     // Prints the table of names and addresses
     @Override
     public String toString() {
-        return "table=" + table + '}';
+        return "Symbol Table: " + table;
     }
 }

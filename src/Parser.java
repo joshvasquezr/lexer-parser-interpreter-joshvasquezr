@@ -13,7 +13,7 @@ public class Parser {
     private boolean goTo;
     private String currentID;
     private ArrayList<Integer> byteCode = new ArrayList<Integer>();
-//    private int currentIdAddress;
+
 
     // Constructor: This is where we set things up to start reading the program
     public Parser(String fileName) {
@@ -161,6 +161,18 @@ public class Parser {
         type = currentToken.getType();  // What kind of word is it?
         line = currentToken.getLine();  // What line is it on?
         return currentToken;
+    }
+
+    public ArrayList<Integer> getByteCode() {
+        return this.byteCode;
+    }
+
+    public idTable getSymbolTable() {
+        return symbolTable;
+    }
+
+    public boolean getError() {
+        return ERROR;
     }
 
     // This is the main function that starts the program
