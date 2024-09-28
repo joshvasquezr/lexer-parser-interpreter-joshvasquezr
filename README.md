@@ -1,6 +1,6 @@
-# Lexer-Parser Project (2a / 2b)
+# Lexer-Parser-Interpreter Project
 ## Project Overview
-The Lexer-Parser Project (2b) aims to tokenize the different parts of SIMPLE code in a  `.txt` file and the parse the 
+The Lexer-Parser-Interpreter Project aims to tokenize the different parts of SIMPLE code in a  `.txt` file and the parse the 
 tokens to ensure the SIMPLE code input is a 'Valid Program' or 'Invalid Program'.
 When `Lexer.java` is passed a `.txt` file, it should return tokens:
 * `IDTOKEN` - a continues String of letters and integers. An ID must have a letter at the beginning of the String.
@@ -22,6 +22,25 @@ or
 ERROR: [Type of Error & what the program was expecting], line where error is found
 Invalid Program
 ```
+Last, but not least, `ByteCodeInterpreter.java` interprets the bytecode that Parser generates, and changes memory
+accordingly. For example, if we have the following `.txt` file:
+```bash
+plain.txt
+
+x = 5
+y = x + 6
+```
+ Parser will produce the following bytecode:
+```bash
+[1, 5, 2, 0, 0, 0, 1, 6, 2, 1]
+```
+Then, the `ByteCodeInterpreter` will step-in and interpret the bytecode and change the memory according to the bytecode
+commands and operands. The memeory would look like:
+
+```bash
+[5, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+```
+(the default size of memory is 10, but this is able to be adjust to any desire size).
 
 ## How to Deploy `Lexer.java`
 
@@ -52,8 +71,8 @@ To run the `Lexer.java` program on your local machine, follow these steps:
    java -cp src Lexer test.txt 
    ```
 4. **Change `.txt` file**
-   * If you want to use `Lexer.java` to parse another file, simply substitute `your file name` for `test` in 
-   `test.txt`.
+   * If you want to use `Lexer.java` to parse another file, simply substitute **your file name**
+     for **test** in `test.txt`.
 
 To run the `Parser.java` program on your local machine, follow these similar, but different, steps:
 1. Follow steps 1 and 2 for `Lexer.java` and **clone the repository** AND **navigate to the project repository on 
@@ -69,8 +88,25 @@ your machine**
    java -cp src Parser test.txt
    ```
 4. **Change `.txt` file**
-   * If you want to use `Parser.java` to validate another file, simply substitute `your file name` for `test` in
-     `test.txt`.
+   * If you want to use `Parser.java` to validate another file, simply substitute **your file name**
+     for **test** in `test.txt`.
+
+To run the `ByteCodeInterpreter.java` program on your local machine, follow these similar, but different, steps:
+1. Again, follow steps 1 and 2 for `Lexer.java` and **clone the repository** AND **navigate to the project repository on
+   your machine**
+2. **Compile the Code**
+   * Use the following command to compile the Java files:
+   ```bash
+   javac src/Token.java src/Lexer.java src/Parser.java src/idTable.java src/ByteCodeInterpreter.java 
+   ```
+3. **Run `Parser.java`**
+   * To run the program use the following command:
+   ```bash
+   java -cp src ByteCodeInterpreter test.txt
+   ```
+4. **Change `.txt` file**
+   * If you want to use `ByteCodeInterpreter.java` to interpret another file, simply substitute **your file name** 
+   for **test** in `test.txt`.
 
 
 ### Development Process
@@ -135,7 +171,30 @@ I will also briefly describe my thought process and the structure of my code:
    correct order.
       * Valid Program: x = 1 + 2 + 3
       * Invalid Program:  x = 1 ++3 + y
-    
+3. ### ByteCodeInterpreter.java
+   The goal of this project was to interpret our already tokenized and validated `.txt` file. I will describe how I went
+about doing this. 
+   * Step one, create bytecode based off of the `.txt` file fed to the Parser. This was done by creating an
+   `ArrayList<Integer> bytecode` data member and using the `add(int x)` function to add bytecode to the array. I did this by
+   storing the value of my `currentID` (i.e. x = 5; `currentID` =  x). Then when the program is in `parserExpression()`, if the
+   `currentToken` is an identifier, it will append the LOAD command to `bytecode`, which is 0, and the address of `currentToken` 
+   found in the `symbolTable`. If `currentToken` is an integer, the program will append the LOADI command to `bytecode`, 
+   which is 1, and the value of `currentToken`. Finally, if parseExpression recognizes that a new variable will be assigned 
+   to a new expression, it will the append the STORE command to `bytecode`, which is 2, and the address of `currentID`. 
+   * Once, the bytecode is generated, we move onto the interpreter step. This is when `ByteCodeInterpreter.java` comes 
+   into the picture. Here we use the `run()` method to loop through the `bytecode` array two-by-two. We are doing this
+   two-by-two because each command (LOAD, LOADI, STORE) is paired with an operand, be it an integer index or value. 
+   I will briefly detail each helper method for `run()`:
+     * `load()` - accesses the `memory` ArrayList to extract the value found at the specified index. Then adds it to the
+     `accumulator`.
+     * `loadi()` - directly adds the integer value to the accumulator
+     * `store()` - checks if there's space in the memory to store another integer. If there is enough space left, it will
+     set the specified index to the value of the `accumulator` and then set `accumulator` back to 0.
+   
+   In `run()` if the current index is a LOAD (or 0), then it will call `load()`, else if the current index is a LOADI (or 1),
+then it will call `loadi()`, else if the current index is a STORE (or 2) it will call `store()` and pass the necessary 
+arguments to these methods.
+
 
 ### Test Plan
 
@@ -155,7 +214,13 @@ assignment operators, and plus signs.
       ```bash
       Valid Program
         ```
-
+      - `ByteCodeInterpreter.java`
+      ```bash
+      Valid Program
+      Symbol Table: {xyz=0, zz12=1}
+      ByteCode: [1, 33, 2, 0, 1, 99, 1, 88, 0, 0, 2, 1]
+      Memory: [33, 220, 0, 0, 0, 0, 0, 0, 0, 0]
+      ```
 2. **Assignment Operator Test**:
     - **Test file**: `testExpectingAssignOp.txt`
     - **Description**: Ensures that the lexer properly handles cases where assignment (`=`) occurs between identifiers 
@@ -166,6 +231,11 @@ assignment operators, and plus signs.
       [ID x32 1, ASSMT = 1, INT 54 1, ASSMT = 1, INT 87 1, EOF - 1]
       ```
       - `Parser.java`
+      ```bash
+      Expecting assignment operator, line 1
+      Invalid Program
+        ```
+      - `ByteCodeInterpreter.java`
       ```bash
       Expecting assignment operator, line 1
       Invalid Program
@@ -184,6 +254,11 @@ assignment operators, and plus signs.
       Expecting identifier or add operator, line 1
       Invalid Program
         ```
+      - `ByteCodeInterpreter.java`
+      ```bash
+      Expecting identifier or add operator, line 1
+      Invalid Program
+        ```
 
 4. **Multiple Plus Test**:
     - **Test file**: `testMultiplePlus.txt`
@@ -196,6 +271,13 @@ assignment operators, and plus signs.
       - `Parser.java`
       ```bash
       Valid Program
+        ```
+      - `ByteCodeInterpreter.java`
+      ```bash
+      Valid Program
+      Symbol Table: {x32=0, yyy9=1}
+      ByteCode: [1, 77, 2, 0, 0, 0, 1, 5, 1, 4, 0, 0, 2, 1]
+      Memory: [77, 163, 0, 0, 0, 0, 0, 0, 0, 0]
         ```
 
 5. **Whitespace Handling Test**:
@@ -211,6 +293,13 @@ assignment operators, and plus signs.
       Identifier 'yzu' not defined, line 2
       Invalid Program
         ```
+      - `ByteCodeInterpreter.java`
+      ```bash
+      Valid Program
+      Symbol Table: {rt=1, x32=0}
+      ByteCode: [1, 83, 2, 0, 1, 2, 2, 1]
+      Memory: [83, 2, 0, 0, 0, 0, 0, 0, 0, 0]
+        ```
 6. **Expecting Identifier Test**:
     - **Test file**: `testExpectingId2.txt`
     - **Description**: Ensures that the lexer behaves correctly when it encounters a sequence of integers and expects 
@@ -225,6 +314,24 @@ assignment operators, and plus signs.
       Expected identifier, line 1
       Invalid Program
       ```
+      - `ByteCodeInterpreter.java`
+      ```bash
+      Expected identifier, line 1
+      Invalid Program
+      ```
+7. **Test Out of Bounds**
+   - **Test file**: `testOutOfBounds.txt`
+   - **Description**: Ensures that the interpreter behaves correctly when encountered with a file that tries to exceed
+   the available memory space.
+   - **Expected results**:
+     - `ByteCodeInterpreter.java`
+        ```bash
+        Valid Program
+       Run Time Error: Address '10' out of range.
+       Symbol Table: {a=0, b=1, c=2, d=3, e=4, f=5, g=6, h=7, i=8, j=9, k=10}
+       ByteCode: [1, 1, 2, 0, 1, 2, 2, 1, 1, 3, 2, 2, 1, 4, 2, 3, 1, 5, 2, 4, 1, 6, 2, 5, 1, 7, 2, 6, 1, 8, 2, 7, 1, 9, 2, 8, 1, 10, 2, 9, 1, 11, 2, 10]
+       Memory: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        ```
 
 Each test case compares the expected token output against the actual tokenized result and fails if there is a mismatch.
 
