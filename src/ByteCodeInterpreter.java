@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class ByteCodeInterpreter {
-    private ArrayList<Integer> bytecode;
+    public ArrayList<Integer> bytecode = new ArrayList<Integer>();
     private ArrayList<Integer> memory;
     public static final int LOAD = 0;
     public static final int LOADI = 1;
@@ -12,14 +12,16 @@ public class ByteCodeInterpreter {
     private idTable symbolTable;
     private boolean parserError;
 
+    // constructor for ByteCodeInterpreter
     public ByteCodeInterpreter(int n, String fileName) {
-        Parser parser = new Parser(fileName);
+        Parser parser = new Parser(fileName, this);
         parser.parseProgram();
         this.parserError = parser.getError();
         if (parserError) {
             return;
         }
-        this.bytecode = parser.getByteCode();
+
+//        this.bytecode = parser.getByteCode();
         this.symbolTable = parser.getSymbolTable();
         this.memory = new ArrayList<Integer>();
         for (int i = 0; i < n; i++) {
@@ -29,7 +31,14 @@ public class ByteCodeInterpreter {
         this.runTimeError = false;
     }
 
-    public void run() {
+    // generates the bytecode with the help of Parser's structure
+    public void generate(int command, int op) {
+        bytecode.add(command);
+        bytecode.add(op);
+    }
+
+    // directs the process of updating memory, guides to correct helper method
+    private void run() {
         if (parserError) {
             return;
         }
@@ -52,7 +61,8 @@ public class ByteCodeInterpreter {
         }
     }
 
-    public void load(int address) {
+    // gets the value from a memory address in symbol table and adds that to the accumulator
+    private void load(int address) {
         // get value from idTable with address specified
         int value = memory.get(address);
 
@@ -60,11 +70,13 @@ public class ByteCodeInterpreter {
         accumulator = accumulator + value;
     }
 
-    public void loadi(int n) {
+    // directly adds the integer to the accumulator
+    private void loadi(int n) {
         accumulator = accumulator + n;
     }
 
-    public void store(int address) {
+    // stores the accumulator in the memory and resets the accumulator
+    private void store(int address) {
         if (address >= memorySize) {
             runTimeError = true;
             return;
@@ -73,6 +85,7 @@ public class ByteCodeInterpreter {
         accumulator = 0;
     }
 
+    // allows us to print our object and its contents
     public String toString() {
         String result = "";
         if (!parserError) {
@@ -82,11 +95,12 @@ public class ByteCodeInterpreter {
         }
         return result;
     }
+
     public static void main(String[] args) {
         String fileName = "";  // Get the file name with the program code
         if (args.length == 0) {
             System.out.println("For this run, test.txt is used");
-            fileName = "test.txt";
+            fileName = "monsterTest.txt";
         } else {
             fileName = args[0];  // Take the first argument as the file name
         }

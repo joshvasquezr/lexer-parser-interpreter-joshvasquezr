@@ -12,24 +12,23 @@ public class Parser {
     private boolean ERROR;
     private boolean goTo;
     private String currentID;
-    private ArrayList<Integer> byteCode = new ArrayList<Integer>();
-
+    private ByteCodeInterpreter interpreter;
 
     // Constructor: This is where we set things up to start reading the program
-    public Parser(String fileName) {
+    public Parser(String fileName, ByteCodeInterpreter interpreter) {
         Lexer lexer = new Lexer(fileName);
         this.tokenList = lexer.getAllTokens();
         if (!tokenList.isEmpty()) {
-            currentToken = tokenList.get(index);
-            type = currentToken.getType();
-            value = currentToken.getValue();
-            line = currentToken.getLine();
-            symbolTable = new idTable();
-//            this.currentIdAddress = symbolTable.getAddress(value);
-            goTo = false;
-            ERROR = false;
+            this.currentToken = tokenList.get(index);
+            this.type = currentToken.getType();
+            this.value = currentToken.getValue();
+            this.line = currentToken.getLine();
+            this.symbolTable = new idTable();
+            this.interpreter = interpreter;
+            this.goTo = false;
+            this.ERROR = false;
             if (currentToken.type.equals(Lexer.IDTOKEN)) {
-                currentID = currentToken.value;
+                this.currentID = currentToken.value;
             }
         } else {
             currentToken = null;
@@ -75,8 +74,7 @@ public class Parser {
             return ERROR;
         }
         if (type.equals(Lexer.EOFTOKEN)) {
-            byteCode.add(2);
-            byteCode.add(symbolTable.getAddress(currentID));
+            interpreter.generate(2,symbolTable.getAddress(currentID));
         }
         return ERROR;
     }
@@ -101,15 +99,14 @@ public class Parser {
         return ERROR;
     }
 
-    // This reads the math part, like '3 + 4'
+    // This reads the math part, like '3 + 4', 'x + 1', etc...
     public boolean parseExpression() {
         if (type.equals(Lexer.IDTOKEN)) {
             if (symbolTable.getAddress(value) == -1) {
                 Token nextToken = tokenList.get(index + 1);
                 if (nextToken.type.equals(Lexer.ASSMTTOKEN)) {
                     goTo = true;
-                    byteCode.add(2);
-                    byteCode.add(symbolTable.getAddress(currentID));
+                    interpreter.generate(2, symbolTable.getAddress(currentID));
                 } else {
                     System.out.println("Identifier '" + value + "' not defined, line " + line);
                     ERROR = true;
@@ -123,11 +120,9 @@ public class Parser {
                     return ERROR;
                 } else if (nextToken.type.equals(Lexer.ASSMTTOKEN)) {
                     goTo = true;
-                    byteCode.add(2);
-                    byteCode.add(symbolTable.getAddress(currentID));
+                    interpreter.generate(2, symbolTable.getAddress(currentID));
                 } else {
-                    byteCode.add(0);
-                    byteCode.add(symbolTable.getAddress(value));
+                    interpreter.generate(0, symbolTable.getAddress(value));
                 }
 
                 // Generate ByteCode
@@ -140,8 +135,7 @@ public class Parser {
                 ERROR = true;
                 return ERROR;
             }
-            byteCode.add(1);
-            byteCode.add(Integer.parseInt(value));
+            interpreter.generate(1, Integer.parseInt(value));
         } else if (type.equals(Lexer.PLUSTOKEN) || type.equals(Lexer.SUBTOKEN) || type.equals(Lexer.DIVTOKEN) || type.equals(Lexer.MULTTOKEN)) {
             Token nextToken = tokenList.get(index + 1);
             if (!(nextToken.type.equals(Lexer.INTTOKEN) || nextToken.type.equals(Lexer.IDTOKEN))) {
@@ -163,14 +157,12 @@ public class Parser {
         return currentToken;
     }
 
-    public ArrayList<Integer> getByteCode() {
-        return this.byteCode;
-    }
-
+    // method to get the SymbolTable to print in ByteCodeInterpreter
     public idTable getSymbolTable() {
         return symbolTable;
     }
 
+    // method to get the boolean value of ERROR to print correct output if valid / invalid
     public boolean getError() {
         return ERROR;
     }
@@ -184,8 +176,8 @@ public class Parser {
         } else {
             fileName = args[0];  // Take the first argument as the file name
         }
-        Parser test = new Parser(fileName);  // Make a new parser to read the file
+        ByteCodeInterpreter interpreter = new ByteCodeInterpreter(10, fileName);
+        Parser test = new Parser(fileName, interpreter);  // Make a new parser to read the file
         test.parseProgram();  // Start reading and checking the whole program
-        System.out.println(test.byteCode);
     }
 }
